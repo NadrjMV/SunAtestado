@@ -4,15 +4,14 @@
 :root {
     --bg-primary: #f4f7fc; --bg-secondary: #ffffff; --text-primary: #1e293b; --text-secondary: #64748b;
     --accent-primary: #3b82f6; --accent-primary-hover: #2563eb; --border-color: #e2e8f0; --input-bg: #f8fafc;
-    --success-color: #10b981; --error-color: #ef4444; --logo-shape-fill: #3b82f6; --logo-text-fill: #1e293b;
-    --shadow-color: rgba(0, 0, 0, 0.05); --font-family: 'Poppins', sans-serif; --border-radius-sm: 6px;
-    --border-radius-md: 8px; --transition-speed: 0.3s;
+    --success-color: #10b981; --error-color: #ef4444; --shadow-color: rgba(0, 0, 0, 0.05); 
+    --font-family: 'Poppins', sans-serif; --border-radius-sm: 6px; --border-radius-md: 8px; --transition-speed: 0.3s;
 }
 
 html.dark-mode {
     --bg-primary: #0b1120; --bg-secondary: #1a2233; --text-primary: #e2e8f0; --text-secondary: #94a3b8;
     --accent-primary: #60a5fa; --accent-primary-hover: #93c5fd; --border-color: #334155; --input-bg: #1e293b;
-    --logo-shape-fill: #60a5fa; --logo-text-fill: #e2e8f0; --shadow-color: rgba(0, 0, 0, 0.2);
+    --shadow-color: rgba(0, 0, 0, 0.2);
 }
 
 body {
@@ -29,12 +28,22 @@ body {
     border-radius: var(--border-radius-md); border: 1px solid var(--border-color);
     box-shadow: 0 10px 25px -5px var(--shadow-color);
 }
-.auth-header { text-align: center; margin-bottom: 2rem; }
-.auth-header .logo { margin-bottom: 1.5rem; }
+/* CORREÇÃO DO HEADER DE AUTENTICAÇÃO */
+.auth-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.auth-logo {
+    height: 40px;
+    margin-bottom: 1.5rem;
+}
 .auth-header h2 { font-size: 1.8rem; font-weight: 600; margin-bottom: 0.5rem; }
 .auth-header p { color: var(--text-secondary); }
 #login-form .form-group, #register-form .form-group { display: flex; flex-direction: column; margin-bottom: 1.25rem; }
-#login-form label, #register-form label { font-weight: 500; font-size: 0.9rem; margin-bottom: 0.5rem; }
+#login-form label, #register-form label { font-weight: 500; font-size: 0.9rem; margin-bottom: 0.5rem; text-align: left; }
 #login-form input, #register-form input {
     width: 100%; padding: 0.75rem 1rem; background-color: var(--input-bg); border: 1px solid var(--border-color);
     border-radius: var(--border-radius-sm); color: var(--text-primary); font-family: var(--font-family);
@@ -58,19 +67,14 @@ body {
 /* --- Estrutura da Aplicação Principal --- */
 #app-container { max-width: 900px; margin: 0 auto; width: 100%; }
 header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
-.logo-shape { fill: var(--logo-shape-fill); transition: fill var(--transition-speed) ease; }
-.logo-text { fill: var(--logo-text-fill); transition: fill var(--transition-speed) ease; }
+.app-logo { height: 40px; }
 .header-controls { display: flex; align-items: center; gap: 1.5rem; }
-
-/* --- Botão de Logout --- */
 .logout-button {
     background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);
     padding: 0.5rem 1rem; border-radius: var(--border-radius-sm); cursor: pointer; font-weight: 500;
     transition: all var(--transition-speed) ease;
 }
 .logout-button:hover { background: var(--border-color); color: var(--text-primary); }
-
-/* --- Seletor de Tema --- */
 .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
 .slider {
@@ -93,8 +97,6 @@ input:checked + .slider:before {
 .hero { text-align: center; margin-bottom: 3rem; }
 .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem; }
 .hero p { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
-.animate-on-load { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
-#hero-subtitle { transition-delay: 0.1s; }
 #leave-request-form {
     background: var(--bg-secondary); padding: 2.5rem; border-radius: var(--border-radius-md);
     border: 1px solid var(--border-color); box-shadow: 0 10px 25px -5px var(--shadow-color);
@@ -114,7 +116,7 @@ input:checked + .slider:before {
     outline: none; border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 20%, transparent);
 }
-.form-group.error input:not([readonly]), .form-group.error select, .form-group.error textarea { border-color: var(--error-color); }
+.form-group.error input:not([readonly]), .form-group.error select, .form-group.error textarea, .form-group.error #signature-pad { border-color: var(--error-color); }
 .form-group.error .error-message { display: block; color: var(--error-color); }
 .form-group.success input:not([readonly]), .form-group.success select, .form-group.success textarea { border-color: var(--success-color); }
 .error-message { display: none; font-size: 0.8rem; margin-top: -0.25rem; }
@@ -141,6 +143,21 @@ input:checked + .slider:before {
 #submit-button.loading .spinner { display: block; }
 #submit-button.loading .button-text { display: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- Estilos para o Campo de Assinatura --- */
+.signature-wrapper { position: relative; width: 100%; max-width: 500px; }
+#signature-pad {
+    background-color: var(--input-bg); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm); cursor: crosshair; touch-action: none;
+    width: 100%; height: auto; aspect-ratio: 2 / 1;
+}
+.clear-button {
+    position: absolute; top: 10px; right: 10px; background: var(--bg-primary);
+    border: 1px solid var(--border-color); color: var(--text-secondary);
+    padding: 0.3rem 0.8rem; border-radius: var(--border-radius-sm); cursor: pointer;
+    font-size: 0.8rem; font-weight: 500; transition: all var(--transition-speed) ease;
+}
+.clear-button:hover { background: var(--border-color); color: var(--text-primary); }
 
 /* --- Modal & Rodapé --- */
 .modal-overlay {
@@ -169,86 +186,13 @@ input:checked + .slider:before {
 footer { text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color); font-size: 0.9rem; color: var(--text-secondary); }
 
 /* --- Responsividade --- */
-/* --- Media Queries para Responsividade --- */
-
-/* Para tablets e telas menores (desfaz a grade de 3 colunas para 2) */
-@media (max-width: 920px) {
-    .form-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-/* Para celulares (desfaz completamente a grade para 1 coluna vertical) */
+@media (max-width: 920px) { .form-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 768px) {
-    #app-container, .auth-container {
-        /* Reduz o espaçamento interno em telas pequenas */
-        padding: 1.5rem;
-    }
-
-    .form-grid {
-        /* Mágica da responsividade: transforma a grade em uma única coluna */
-        grid-template-columns: 1fr;
-        gap: 1.25rem; /* Reduz o espaçamento entre os campos */
-    }
-
-    #leave-request-form {
-        padding: 1.5rem;
-    }
-
-    .hero h1 {
-        font-size: 1.8rem;
-    }
-    
-    .hero p {
-        font-size: 1rem;
-    }
-
-    .header-controls {
-        gap: 1rem;
-    }
-
-    .file-upload-wrapper {
-        /* Empilha o botão e o nome do arquivo em telas muito pequenas */
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-}
-
-/* --- Estilos para o Campo de Assinatura --- */
-.signature-wrapper {
-    position: relative;
-    width: 100%;
-    max-width: 500px; /* Limita a largura máxima da assinatura */
-}
-
-#signature-pad {
-    background-color: var(--input-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-sm);
-    cursor: crosshair;
-    touch-action: none; /* Previne scroll da página ao desenhar no mobile */
-    width: 100%;
-    height: auto;
-    aspect-ratio: 2 / 1; /* Mantém a proporção 2:1 (largura:altura) */
-}
-
-.clear-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    padding: 0.3rem 0.8rem;
-    border-radius: var(--border-radius-sm);
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 500;
-    transition: all var(--transition-speed) ease;
-}
-
-.clear-button:hover {
-    background: var(--border-color);
-    color: var(--text-primary);
+    #app-container, .auth-container { padding: 1.5rem; }
+    .form-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+    #leave-request-form { padding: 1.5rem; }
+    .hero h1 { font-size: 1.8rem; }
+    .hero p { font-size: 1rem; }
+    .header-controls { gap: 1rem; }
+    .file-upload-wrapper { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
 }
