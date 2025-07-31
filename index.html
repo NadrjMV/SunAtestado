@@ -4,18 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solicitação de Afastamento | SunShield</title>
-    
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     <link rel="icon" type="image/png" href="https://sunshield.com.br/wp-content/uploads/2024/12/cropped-sunshield-1-150x150.webp">
-    
-    <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
-    
-    <!-- EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
@@ -24,20 +17,13 @@
         <div id="login-view" class="view">
             <div class="auth-container">
                 <header class="auth-header">
-                    <!-- LOGO COMO IMAGEM -->
                     <img src="https://i.postimg.cc/KjZ9whqj/sunshield-logo.webp" alt="SunShield Logo" class="auth-logo">
                     <h2>Bem-vindo de volta!</h2>
                     <p>Faça login para continuar.</p>
                 </header>
                 <form id="login-form" novalidate>
-                    <div class="form-group">
-                        <label for="login-email">Email</label>
-                        <input type="email" id="login-email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="login-password">Senha</label>
-                        <input type="password" id="login-password" required>
-                    </div>
+                    <div class="form-group"><label for="login-email">Email</label><input type="email" id="login-email" required></div>
+                    <div class="form-group"><label for="login-password">Senha</label><input type="password" id="login-password" required></div>
                     <a href="#" class="forgot-password-link">Esqueceu a senha?</a>
                     <button type="submit" class="auth-button">Entrar</button>
                     <p class="auth-switch">Não tem uma conta? <a href="#" id="show-register">Cadastre-se</a></p>
@@ -49,7 +35,6 @@
         <div id="register-view" class="view" style="display: none;">
             <div class="auth-container">
                 <header class="auth-header">
-                    <!-- LOGO COMO IMAGEM -->
                     <img src="https://i.postimg.cc/KjZ9whqj/sunshield-logo.webp" alt="SunShield Logo" class="auth-logo">
                     <h2>Crie sua Conta</h2>
                     <p>É rápido e fácil.</p>
@@ -57,7 +42,7 @@
                 <form id="register-form" novalidate>
                     <div class="form-group"><label for="register-fullname">Nome Completo</label><input type="text" id="register-fullname" required></div>
                     <div class="form-group"><label for="register-email">Email</label><input type="email" id="register-email" required></div>
-                    <div class="form-group"><label for="register-re">RE (Matrícula)</label><input type="text" id="register-re" required></div>
+                    <div class="form-group"><label for="register-re">RE (Registro)</label><input type="text" id="register-re" required></div>
                     <div class="form-group"><label for="register-phone">Telefone</label><input type="tel" id="register-phone" required></div>
                     <div class="form-group"><label for="register-password">Senha</label><input type="password" id="register-password" required></div>
                     <div class="form-group"><label for="register-confirm-password">Confirmar Senha</label><input type="password" id="register-confirm-password" required></div>
@@ -67,101 +52,72 @@
             </div>
         </div>
 
-        <!-- ===== APLICAÇÃO PRINCIPAL (Após Login) ===== -->
+        <!-- ===== APLICAÇÃO PRINCIPAL (VIEW DO USUÁRIO) ===== -->
         <div id="app-view" class="view" style="display: none;">
             <div id="app-container">
                 <header>
-                    <div class="logo-container">
-                        <!-- LOGO COMO IMAGEM -->
-                        <img src="https://i.postimg.cc/KjZ9whqj/sunshield-logo.webp" alt="SunShield Logo" class="app-logo">
-                    </div>
+                    <div class="logo-container"><img src="https://i.postimg.cc/KjZ9whqj/sunshield-logo.webp" alt="SunShield Logo" class="app-logo"></div>
                     <div class="header-controls">
-                        <div class="theme-switcher">
-                            <div class="toggle-switch"><input type="checkbox" id="theme-toggle"><label for="theme-toggle" class="slider"></label></div>
-                        </div>
+                        <button id="admin-panel-button" class="admin-button" style="display: none;">Painel Admin</button>
+                        <div class="theme-switcher"><div class="toggle-switch"><input type="checkbox" id="theme-toggle"><label for="theme-toggle" class="slider"></label></div></div>
                         <button id="logout-button" class="logout-button">Sair</button>
                     </div>
                 </header>
-
                 <main>
-                    <section class="hero">
-                        <h1 id="welcome-message">Olá!</h1>
-                        <p>Preencha o formulário abaixo para registrar seu atestado médico.</p>
-                    </section>
-
+                    <section class="hero"><h1 id="welcome-message">Olá!</h1><p>Preencha o formulário abaixo para registrar seu atestado médico.</p></section>
                     <form id="leave-request-form" novalidate>
                         <div class="form-grid">
-                            <!-- Campos preenchidos automaticamente -->
                             <div class="form-group"><label for="registrationId">RE (Matrícula)</label><input type="text" id="registrationId" readonly></div>
                             <div class="form-group"><label for="email">Email para Devolutiva</label><input type="email" id="email" readonly></div>
                             <div class="form-group"><label for="phone">Telefone do Colaborador</label><input type="tel" id="phone" readonly></div>
-                            
-                            <!-- Campos a serem preenchidos -->
                             <div class="form-group"><label for="startDate">Data Inicial do Afastamento</label><input type="date" id="startDate" required><small class="error-message">Campo obrigatório.</small></div>
                             <div class="form-group"><label for="daysOff">Quantidade de Dias Afastados</label><input type="number" id="daysOff" min="1" placeholder="Ex: 1" required><small class="error-message">Deve ser no mínimo 1 dia.</small></div>
-                            <div class="form-group">
-                                <label for="branch">Filial</label>
-                                <select id="branch" name="branch" required>
-                                    <option value="" disabled selected>Selecione sua filial</option>
-                                    <option value="MG/Itajubá">MG/Itajubá</option>
-                                    <option value="SP/São Paulo">SP/São Paulo</option>
-                                    <option value="CE/Fortaleza">CE/Fortaleza</option>
-                                    <option value="PE/Santa Cruz do Capibaribe">PE/Santa Cruz do Capibaribe</option>
-                                    <option value="SC/Itajaí">SC/Itajaí</option>
-                                </select>
-                                <small class="error-message">Campo obrigatório.</small>
-                            </div>
+                            <div class="form-group"><label for="branch">Filial</label><select id="branch" name="branch" required><option value="" disabled selected>Selecione sua filial</option><option value="MG/Itajubá">MG/Itajubá</option><option value="SP/São Paulo">SP/São Paulo</option><option value="CE/Fortaleza">CE/Fortaleza</option><option value="PE/Santa Cruz do Capibaribe">PE/Santa Cruz do Capibaribe</option><option value="SC/Itajaí">SC/Itajaí</option></select><small class="error-message">Campo obrigatório.</small></div>
                             <div class="form-group"><label for="crm">Nº CRM do Médico</label><input type="text" id="crm" name="crm" placeholder="Ex: 94564" required><small class="error-message">Campo obrigatório.</small></div>
                             <div class="form-group form-group-full"><label for="observations">Observações (CID)</label><textarea id="observations" name="observations" rows="3" placeholder="Ex: CID T784"></textarea></div>
-                            
-                            <!-- Upload de Atestado -->
-                            <div class="form-group form-group-full">
-                                <label for="medicalProof">Anexar Atestado Médico</label>
-                                <div class="file-upload-wrapper">
-                                    <input type="file" id="medicalProof" name="medicalProof" accept="image/png, image/jpeg, application/pdf" required hidden>
-                                    <button type="button" class="file-upload-button">Escolher Arquivo</button>
-                                    <span class="file-name">Nenhum arquivo selecionado</span>
-                                </div>
-                                <div id="image-preview" class="image-preview-container"></div>
-                                <small class="error-message">É obrigatório anexar o atestado.</small>
-                            </div>
-                            
-                            <!-- Campo de Assinatura Digital -->
-                            <div class="form-group form-group-full">
-                                <label for="signature-pad">Assinatura Digital (Obrigatória)</label>
-                                <div class="signature-wrapper">
-                                    <canvas id="signature-pad"></canvas>
-                                    <button type="button" id="clear-signature-button" class="clear-button">Limpar</button>
-                                </div>
-                                <small class="error-message" id="signature-error">A assinatura é obrigatória.</small>
-                            </div>
+                            <div class="form-group form-group-full"><label for="medicalProof">Anexar Atestado Médico</label><div class="file-upload-wrapper"><input type="file" id="medicalProof" name="medicalProof" accept="image/png, image/jpeg" required hidden><button type="button" class="file-upload-button">Escolher Arquivo</button><span class="file-name">Nenhum arquivo selecionado</span></div><div id="image-preview" class="image-preview-container"></div><small class="error-message">É obrigatório anexar o atestado.</small></div>
+                            <div class="form-group form-group-full"><label for="signature-pad">Assinatura Digital (Obrigatória)</label><div class="signature-wrapper"><canvas id="signature-pad"></canvas><button type="button" id="clear-signature-button" class="clear-button">Limpar</button></div><small class="error-message" id="signature-error">A assinatura é obrigatória.</small></div>
                         </div>
-
-                        <div class="submit-container">
-                            <button type="submit" id="submit-button">
-                                <span class="button-text">Enviar Solicitação</span>
-                                <div class="spinner"></div>
-                            </button>
-                        </div>
+                        <div class="submit-container"><button type="submit" id="submit-button"><span class="button-text">Enviar Solicitação</span><div class="spinner"></div></button></div>
                     </form>
                 </main>
-                <footer>
-                    <p>&copy; <span id="current-year"></span> Colaborador | SunShield. Todos os direitos reservados.</p>
-                </footer>
+                <footer><p>&copy; <span id="current-year"></span> Colaborador | SunShield. Todos os direitos reservados.</p></footer>
             </div>
         </div>
 
-        <!-- ===== MODAL DE SUCESSO ===== -->
-        <div id="success-modal" class="modal-overlay" aria-hidden="true">
-            <div class="modal-content" role="dialog" aria-labelledby="modal-title">
-                <div class="modal-icon">✓</div>
-                <h2 id="modal-title" class="modal-title">Solicitação Enviada!</h2>
-                <p class="modal-body">Sua solicitação (REQ#<span id="req-id"></span>) foi encaminhada. Você receberá a confirmação no seu email.</p>
-                <button id="close-modal" class="modal-close-button">Fechar</button>
+        <!-- ===== PAINEL ADMINISTRATIVO ===== -->
+        <div id="admin-view" class="view" style="display: none;">
+            <div id="admin-container">
+                <header>
+                    <div class="logo-container"><img src="https://i.postimg.cc/KjZ9whqj/sunshield-logo.webp" alt="SunShield Logo" class="app-logo"></div>
+                    <div class="header-controls">
+                        <button id="user-view-button" class="admin-button">Visão do Usuário</button>
+                        <div class="theme-switcher"><div class="toggle-switch"><input type="checkbox" id="admin-theme-toggle"><label for="admin-theme-toggle" class="slider"></label></div></div>
+                        <button id="admin-logout-button" class="logout-button">Sair</button>
+                    </div>
+                </header>
+                <main>
+                    <section class="hero"><h1>Painel Administrativo</h1><p>Visualize as solicitações de afastamento dos vigilantes.</p></section>
+                    <div id="user-list-container" class="admin-card">
+                        <h2>Lista de Vigilantes</h2>
+                        <div id="user-list"></div>
+                    </div>
+                </main>
+                <footer><p>&copy; <span id="current-year-admin"></span> Administrador | SunShield. Todos os direitos reservados.</p></footer>
             </div>
         </div>
+
+        <!-- ===== MODAIS ===== -->
+        <div id="success-modal" class="modal-overlay" aria-hidden="true"><div class="modal-content" role="dialog" aria-labelledby="modal-title"><div class="modal-icon">✓</div><h2 id="modal-title" class="modal-title">Solicitação Enviada!</h2><p class="modal-body">Sua solicitação (REQ#<span id="req-id"></span>) foi encaminhada.</p><button class="modal-close-button">Fechar</button></div></div>
+        <div id="submissions-modal" class="modal-overlay" aria-hidden="true"><div class="modal-content" role="dialog"><h2 id="submissions-modal-title">Atestados Enviados</h2><div id="submissions-list"></div><button class="modal-close-button">Fechar</button></div></div>
+        <div id="details-modal" class="modal-overlay" aria-hidden="true"><div class="modal-content modal-lg" role="dialog"><h2 id="details-modal-title">Detalhes da Solicitação</h2><div id="details-content"></div><button class="modal-close-button">Fechar</button></div></div>
     </div>
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <!-- Script principal da aplicação -->
     <script src="script.js"></script>
 </body>
