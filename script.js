@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- COLE AQUI A CONFIGURAÇÃO DO SEU FIREBASE ---
-const firebaseConfig = {
-  apiKey: "AIzaSyBCQRLCLMPAupDP7vdUJ_pX_hUJeCAKUFc",
-  authDomain: "sunatestado.firebaseapp.com",
-  projectId: "sunatestado",
-  storageBucket: "sunatestado.firebasestorage.app",
-  messagingSenderId: "20789030796",
-  appId: "1:20789030796:web:c432a88fcd590be60870a9",
-  measurementId: "G-VKHEMFMVTG"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyBCQRLCLMPAupDP7vdUJ_pX_hUJeCAKUFc",
+        authDomain: "sunatestado.firebaseapp.com",
+        projectId: "sunatestado",
+        storageBucket: "sunatestado.firebasestorage.app",
+        messagingSenderId: "20789030796",
+        appId: "1:20789030796:web:c432a88fcd590be60870a9",
+        measurementId: "G-VKHEMFMVTG"
+        };
 
     // --- INICIALIZAÇÃO DO FIREBASE E SERVIÇOS ---
     firebase.initializeApp(firebaseConfig);
@@ -28,7 +28,9 @@ const firebaseConfig = {
 
     // --- FUNÇÃO DE NAVEGAÇÃO (CORREÇÃO) ---
     function navigateTo(viewName) {
-        Object.values(views).forEach(view => view.style.display = 'none');
+        Object.values(views).forEach(view => {
+            if(view) view.style.display = 'none'
+        });
         if (views[viewName]) {
             views[viewName].style.display = 'block';
         }
@@ -49,6 +51,7 @@ const firebaseConfig = {
                 currentUserData = { uid: user.uid, ...userDoc.data() };
                 initializeApp();
             } else {
+                // Se o usuário existe no Auth mas não no Firestore, desloga para evitar erros.
                 auth.signOut();
             }
         } else {
