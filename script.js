@@ -26,27 +26,32 @@ const firebaseConfig = {
     const views = { login: document.getElementById('login-view'), register: document.getElementById('register-view'), app: document.getElementById('app-view'), admin: document.getElementById('admin-view') };
     let currentUserData = null; // Armazena os dados do usuário logado (do Firestore)
 
+    // --- FUNÇÃO DE NAVEGAÇÃO (CORREÇÃO) ---
+    function navigateTo(viewName) {
+        Object.values(views).forEach(view => view.style.display = 'none');
+        if (views[viewName]) {
+            views[viewName].style.display = 'block';
+        }
+    }
+
     // --- LÓGICA DE TEMA ---
     const themeToggles = [document.getElementById('theme-toggle'), document.getElementById('admin-theme-toggle')];
-    const applyTheme = (theme) => { document.documentElement.classList.toggle('dark-mode', theme === 'dark'); themeToggles.forEach(t => t.checked = theme === 'dark'); };
+    const applyTheme = (theme) => { document.documentElement.classList.toggle('dark-mode', theme === 'dark'); themeToggles.forEach(t => { if(t) t.checked = theme === 'dark' }); };
     const handleThemeChange = () => { const newTheme = document.documentElement.classList.contains('dark-mode') ? 'light' : 'dark'; localStorage.setItem('theme', newTheme); applyTheme(newTheme); };
-    themeToggles.forEach(toggle => toggle.addEventListener('change', handleThemeChange));
+    themeToggles.forEach(toggle => { if(toggle) toggle.addEventListener('change', handleThemeChange) });
     applyTheme(localStorage.getItem('theme') || 'light');
 
     // --- OBSERVADOR DE ESTADO DE AUTENTICAÇÃO ---
     auth.onAuthStateChanged(async (user) => {
         if (user) {
-            // Usuário está logado, busca os dados dele no Firestore
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists) {
                 currentUserData = { uid: user.uid, ...userDoc.data() };
                 initializeApp();
             } else {
-                // Caso raro: usuário autenticado mas sem dados no Firestore. Desloga.
                 auth.signOut();
             }
         } else {
-            // Usuário está deslogado
             currentUserData = null;
             navigateTo('login');
         }
@@ -80,13 +85,12 @@ const firebaseConfig = {
 
         auth.createUserWithEmailAndPassword(email, password)
             .then(userCredential => {
-                // Salva os dados adicionais do usuário no Firestore
                 return db.collection('users').doc(userCredential.user.uid).set({
                     fullName,
                     email,
                     re,
                     phone,
-                    role: 'vigilante' // Função padrão
+                    role: 'vigilante'
                 });
             })
             .then(() => {
@@ -104,7 +108,7 @@ const firebaseConfig = {
             });
     });
 
-    [document.getElementById('logout-button'), document.getElementById('admin-logout-button')].forEach(btn => btn.addEventListener('click', () => auth.signOut()));
+    [document.getElementById('logout-button'), document.getElementById('admin-logout-button')].forEach(btn => { if(btn) btn.addEventListener('click', () => auth.signOut()) });
     document.getElementById('show-register').addEventListener('click', (e) => { e.preventDefault(); navigateTo('register'); });
     document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); navigateTo('login'); });
     document.querySelector('.forgot-password-link').addEventListener('click', (e) => {
@@ -120,16 +124,11 @@ const firebaseConfig = {
     // --- LÓGICA DA APLICAÇÃO PRINCIPAL ---
     function initializeApp() {
         if (!currentUserData) return;
-
-        // Mostra o botão de admin se o usuário tiver a função
         document.getElementById('admin-panel-button').style.display = currentUserData.role === 'admin' ? 'inline-block' : 'none';
-
-        // Preenche os dados do formulário
         document.getElementById('welcome-message').textContent = `Olá, ${currentUserData.fullName.split(' ')[0]}!`;
         document.getElementById('registrationId').value = currentUserData.re;
         document.getElementById('email').value = currentUserData.email;
         document.getElementById('phone').value = currentUserData.phone;
-        
         navigateTo('app');
         setupSignaturePad();
     }
@@ -142,7 +141,6 @@ const firebaseConfig = {
         navigateTo('admin');
         const userListDiv = document.getElementById('user-list');
         userListDiv.innerHTML = 'Carregando vigilantes...';
-
         try {
             const snapshot = await db.collection('users').where('role', '==', 'vigilante').get();
             userListDiv.innerHTML = '';
@@ -173,7 +171,6 @@ const firebaseConfig = {
         const submissionsListDiv = document.getElementById('submissions-list');
         submissionsListDiv.innerHTML = 'Carregando atestados...';
         submissionsModal.classList.add('active');
-
         try {
             const snapshot = await db.collection('submissions').where('userId', '==', user.id).orderBy('timestamp', 'desc').get();
             submissionsListDiv.innerHTML = '';
@@ -300,10 +297,7 @@ const firebaseConfig = {
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Salva a submissão no Firestore
                 await db.collection('submissions').add(submissionData);
-
-                // Prepara e envia o email
                 const templateParams = { ...submissionData, ...currentUserData };
                 await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
                 
