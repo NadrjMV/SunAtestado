@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- COLE AQUI A CONFIGURAÇÃO DO SEU FIREBASE ---
-    const firebaseConfig = {
-        apiKey: "SUA_API_KEY",
-        authDomain: "SEU_AUTH_DOMAIN",
-        projectId: "SEU_PROJECT_ID",
-        storageBucket: "SEU_STORAGE_BUCKET",
-        messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-        appId: "SEU_APP_ID"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyBCQRLCLMPAupDP7vdUJ_pX_hUJeCAKUFc",
+  authDomain: "sunatestado.firebaseapp.com",
+  projectId: "sunatestado",
+  storageBucket: "sunatestado.firebasestorage.app",
+  messagingSenderId: "20789030796",
+  appId: "1:20789030796:web:c432a88fcd590be60870a9",
+  measurementId: "G-VKHEMFMVTG"
+};
 
     // --- INICIALIZAÇÃO DO FIREBASE E SERVIÇOS ---
     firebase.initializeApp(firebaseConfig);
