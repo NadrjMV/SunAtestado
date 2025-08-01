@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
         apiKey: "AIzaSyBCQRLCLMPAupDP7vdUJ_pX_hUJeCAKUFc",
         authDomain: "sunatestado.firebaseapp.com",
         projectId: "sunatestado",
-        storageBucket: "sunatestado.firebasestorage.app",
+        storageBucket: "sunatestado.appspot.com",
         messagingSenderId: "20789030796",
         appId: "1:20789030796:web:c432a88fcd590be60870a9",
         measurementId: "G-VKHEMFMVTG"
@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const db = firebase.firestore();
 
     // --- CHAVES DE API DE SERVIÇOS EXTERNOS ---
-    const IMGBB_API_KEY = "4b8aff2ad8f33855b83acaa37cd3a274";
     const EMAILJS_PUBLIC_KEY = "PTWkWiWOl0jsBOyp9";
     const EMAILJS_SERVICE_ID = "service_aqui6j7";
     const EMAILJS_TEMPLATE_ID = "template_xxx3jc5";
@@ -131,12 +130,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('email').value = currentUserData.email;
         document.getElementById('phone').value = currentUserData.phone;
         
-        // **INICIALIZAÇÃO DO SELETOR DE DATAS CORRIGIDO**
         flatpickr("#startDate", {
             locale: "pt",
-            dateFormat: "Y-m-d", // Formato que o sistema entende
+            dateFormat: "Y-m-d",
             altInput: true,
-            altFormat: "j \\de F, Y", // Formato que o usuário vê (com escape)
+            altFormat: "j \\de F, Y",
         });
 
         navigateTo('app');
@@ -218,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const leaveRequestForm = document.getElementById('leave-request-form');
     let medicalCertificateDataUrl = '';
     
+    // **FUNÇÃO DE COMPRESSÃO DE IMAGEM REINTEGRADA**
     function compressImage(file, callback) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -231,12 +230,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (width > height) { if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; } } else { if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; } }
                 canvas.width = width; canvas.height = height;
                 canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                callback(canvas.toDataURL('image/jpeg', 0.7));
+                callback(canvas.toDataURL('image/jpeg', 0.7)); // Qualidade de 70%
             };
         };
     }
     
-    // **CORREÇÃO DO BOTÃO DE UPLOAD**
     const fileInput = document.getElementById('medicalProof');
     document.querySelector('.file-upload-button').addEventListener('click', () => fileInput.click());
     
@@ -244,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = e.target.files[0];
         if (file && file.type.startsWith('image/')) {
             document.querySelector('.file-name').textContent = file.name;
+            // Usa a função de compressão
             compressImage(file, (compressedDataUrl) => {
                 document.getElementById('image-preview').innerHTML = `<img src="${compressedDataUrl}" alt="Prévia">`;
                 medicalCertificateDataUrl = compressedDataUrl;
@@ -270,18 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ['mouseup', 'mouseout', 'touchend'].forEach(event => signaturePad.addEventListener(event, stopDrawing));
         document.getElementById('clear-signature-button').addEventListener('click', () => { ctx.clearRect(0, 0, signaturePad.width, signaturePad.height); setWhiteBackground(); hasSigned = false; });
     }
-
-    async function uploadImageToHost(base64Image) {
-        if (!base64Image) return null;
-        const apiUrl = `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`;
-        const formData = new FormData();
-        formData.append('image', base64Image.split(',')[1]);
-        try {
-            const response = await fetch(apiUrl, { method: 'POST', body: formData });
-            const result = await response.json();
-            return result.success ? result.data.url : null;
-        } catch (error) { return null; }
-    }
     
     leaveRequestForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -294,9 +281,12 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.disabled = true;
 
             try {
-                const signatureImageUrl = await uploadImageToHost(signaturePad.toDataURL('image/jpeg', 0.95));
-                const certificateImageUrl = await uploadImageToHost(medicalCertificateDataUrl);
-                if (!signatureImageUrl || !certificateImageUrl) throw new Error("Falha no upload de imagens.");
+                const signatureImageBase64 = signaturePad.toDataURL('image/jpeg', 0.95);
+                const certificateImageBase64 = medicalCertificateDataUrl;
+
+                if (!certificateImageBase64) {
+                    throw new Error("Atestado faltando.");
+                }
                 
                 const reqId = Math.floor(100000 + Math.random() * 900000);
                 
@@ -308,13 +298,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     filial: document.getElementById('branch').value,
                     crm_medico: document.getElementById('crm').value,
                     observacoes: document.getElementById('observations').value || "Nenhuma.",
-                    medical_certificate_image: certificateImageUrl,
-                    signature_image: signatureImageUrl,
+                    medical_certificate_image: certificateImageBase64,
+                    signature_image: signatureImageBase64,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
                 await db.collection('submissions').add(submissionData);
-                const templateParams = { ...submissionData, ...currentUserData };
+                
+                const templateParams = {
+                    req_id: submissionData.req_id,
+                    data_inicio: submissionData.data_inicio,
+                    dias_afastado: submissionData.dias_afastado,
+                    filial: submissionData.filial,
+                    crm_medico: submissionData.crm_medico,
+                    observacoes: submissionData.observacoes,
+                    medical_certificate_image: submissionData.medical_certificate_image,
+                    signature_image: submissionData.signature_image,
+                    nome_completo: currentUserData.fullName,
+                    re_matricula: currentUserData.re,
+                    email_contato: currentUserData.email,
+                    telefone: currentUserData.phone
+                };
+
                 await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
                 
                 showSuccessModal(reqId);
