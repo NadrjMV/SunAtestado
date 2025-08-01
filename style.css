@@ -1,151 +1,207 @@
-<!DOCTYPE html>
-<html lang="pt-BR" class="light-mode">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solicitação de Afastamento | SunShield</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <link rel="icon" type="image/png" href="https://sunshield.com.br/wp-content/uploads/2024/12/cropped-sunshield-1-150x150.webp">
+/* --- Reset Básico & Configuração Inicial --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --bg-primary: #f4f7fc; --bg-secondary: #ffffff; --text-primary: #1e293b; --text-secondary: #64748b;
+    --accent-primary: #3b82f6; --accent-primary-hover: #2563eb; --border-color: #e2e8f0; --input-bg: #f8fafc;
+    --success-color: #10b981; --error-color: #ef4444; --shadow-color: rgba(0, 0, 0, 0.05); 
+    --font-family: 'Poppins', sans-serif; --border-radius-sm: 6px; --border-radius-md: 8px; --transition-speed: 0.3s;
+}
+html.dark-mode {
+    --bg-primary: #0b1120; --bg-secondary: #1a2233; --text-primary: #e2e8f0; --text-secondary: #94a3b8;
+    --accent-primary: #60a5fa; --accent-primary-hover: #93c5fd; --border-color: #334155; --input-bg: #1e293b;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+body { font-family: var(--font-family); background-color: var(--bg-primary); color: var(--text-primary); transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease; line-height: 1.6; }
+#app-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.view { width: 100%; }
 
-    <!-- Flatpickr (Seletor de Datas) CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    
-    <!-- Font Awesome (Ícones para o selo de verificado) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+/* --- Estilos de Autenticação --- */
+.auth-container { max-width: 420px; margin: 0 auto; background: var(--bg-secondary); padding: 2.5rem; border-radius: var(--border-radius-md); border: 1px solid var(--border-color); box-shadow: 0 10px 25px -5px var(--shadow-color); }
+.auth-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 2rem; }
+.auth-logo { height: 40px; margin-bottom: 1.5rem; }
+.auth-header h2 { font-size: 1.8rem; font-weight: 600; margin-bottom: 0.5rem; }
+.auth-header p { color: var(--text-secondary); }
+#login-form .form-group, #register-form .form-group { display: flex; flex-direction: column; margin-bottom: 1.25rem; }
+#login-form label, #register-form label { font-weight: 500; font-size: 0.9rem; margin-bottom: 0.5rem; text-align: left; }
+#login-form input, #register-form input { width: 100%; padding: 0.75rem 1rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); color: var(--text-primary); font-family: var(--font-family); font-size: 1rem; transition: all var(--transition-speed) ease; }
+#login-form input:focus, #register-form input:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 20%, transparent); }
+.forgot-password-link { display: block; text-align: right; font-size: 0.85rem; margin-top: -0.75rem; margin-bottom: 1.5rem; color: var(--accent-primary); text-decoration: none; }
+.auth-button { width: 100%; font-size: 1rem; font-weight: 600; color: #fff; background-image: linear-gradient(to right, var(--accent-primary), color-mix(in srgb, var(--accent-primary) 80%, #9333ea)); padding: 0.8rem; border: none; border-radius: var(--border-radius-sm); cursor: pointer; transition: all var(--transition-speed) ease; }
+.auth-button:hover { opacity: 0.9; transform: translateY(-2px); }
+.auth-switch { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+.auth-switch a { color: var(--accent-primary); font-weight: 500; text-decoration: none; }
 
-    <!-- Stylesheet Principal -->
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- EmailJS SDK -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-</head>
-<body>
-    <div id="app-wrapper">
-        <!-- ===== TELA DE LOGIN ===== -->
-        <div id="login-view" class="view">
-            <div class="auth-container">
-                <header class="auth-header">
-                    <img src="https://i.postimg.cc/KjZ9whqj/sunshield-logo.webp" alt="SunShield Logo" class="auth-logo">
-                    <h2>Bem-vindo de volta!</h2>
-                    <p>Faça login para continuar.</p>
-                </header>
-                <form id="login-form" novalidate>
-                    <div class="form-group"><label for="login-email">Email</label><input type="email" id="login-email" required></div>
-                    <div class="form-group"><label for="login-password">Senha</label><input type="password" id="login-password" required></div>
-                    <a href="#" class="forgot-password-link">Esqueceu a senha?</a>
-                    <button type="submit" class="auth-button">Entrar</button>
-                    <p class="auth-switch">Não tem uma conta? <a href="#" id="show-register">Cadastre-se</a></p>
-                </form>
-            </div>
-        </div>
+/* --- Estrutura da Aplicação Principal e Admin --- */
+#app-container, #admin-container { max-width: 900px; margin: 0 auto; width: 100%; padding: 2rem 0; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
+.app-logo { height: 40px; }
+.header-controls { display: flex; align-items: center; gap: 1rem; }
+.logout-button, .admin-button { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 0.5rem 1rem; border-radius: var(--border-radius-sm); cursor: pointer; font-weight: 500; transition: all var(--transition-speed) ease; white-space: nowrap; }
+.logout-button:hover, .admin-button:hover { background: var(--border-color); color: var(--text-primary); }
+.admin-button { border-color: var(--accent-primary); color: var(--accent-primary); }
+.admin-button:hover { background-color: color-mix(in srgb, var(--accent-primary) 10%, transparent); }
+.toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: var(--transition-speed) ease; border-radius: 26px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: var(--transition-speed) ease; border-radius: 50%; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%23f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'); background-repeat: no-repeat; background-position: center; }
+input:checked + .slider { background-color: var(--accent-primary); }
+input:checked + .slider:before { transform: translateX(24px); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'); }
 
-        <!-- ===== TELA DE CADASTRO ===== -->
-        <div id="register-view" class="view" style="display: none;">
-            <div class="auth-container">
-                <header class="auth-header">
-                    <img src="https://i.postimg.cc/KjZ9whqj/sunshield-logo.webp" alt="SunShield Logo" class="auth-logo">
-                    <h2>Crie sua Conta</h2>
-                    <p>É rápido e fácil.</p>
-                </header>
-                <form id="register-form" novalidate>
-                    <div class="form-group"><label for="register-fullname">Nome Completo</label><input type="text" id="register-fullname" required></div>
-                    <div class="form-group"><label for="register-email">Email</label><input type="email" id="register-email" required></div>
-                    <div class="form-group"><label for="register-re">RE (Registro)</label><input type="text" id="register-re" required></div>
-                    <div class="form-group"><label for="register-phone">Telefone</label><input type="tel" id="register-phone" required></div>
-                    <div class="form-group"><label for="register-password">Senha</label><input type="password" id="register-password" required></div>
-                    <div class="form-group"><label for="register-confirm-password">Confirmar Senha</label><input type="password" id="register-confirm-password" required></div>
-                    <button type="submit" class="auth-button">Cadastrar</button>
-                    <p class="auth-switch">Já tem uma conta? <a href="#" id="show-login">Faça login</a></p>
-                </form>
-            </div>
-        </div>
+/* --- Seção Hero & Formulário --- */
+.hero { text-align: center; margin-bottom: 3rem; }
+.hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+.hero p { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+#leave-request-form, .admin-card { background: var(--bg-secondary); padding: 2.5rem; border-radius: var(--border-radius-md); border: 1px solid var(--border-color); box-shadow: 0 10px 25px -5px var(--shadow-color); transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease; }
+.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; }
+.form-group-full { grid-column: 1 / -1; }
+.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.form-group label { font-weight: 500; font-size: 0.9rem; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem 1rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); color: var(--text-primary); font-family: var(--font-family); font-size: 1rem; transition: all var(--transition-speed) ease; }
+.form-group input[readonly] { background-color: var(--border-color); cursor: not-allowed; opacity: 0.7; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 20%, transparent); }
+.form-group.error input:not([readonly]), .form-group.error select, .form-group.error textarea, .form-group.error #signature-pad { border-color: var(--error-color); }
+.form-group.error .error-message { display: block; color: var(--error-color); }
+.form-group.success input:not([readonly]), .form-group.success select, .form-group.success textarea { border-color: var(--success-color); }
+.error-message { display: none; font-size: 0.8rem; margin-top: -0.25rem; }
+.file-upload-wrapper { display: flex; align-items: center; gap: 1rem; }
+.file-upload-button { background: var(--bg-primary); border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; border-radius: var(--border-radius-sm); cursor: pointer; font-weight: 500; color: var(--text-primary); transition: all var(--transition-speed) ease; white-space: nowrap; }
+.file-upload-button:hover { background: var(--border-color); }
+.file-name { font-size: 0.9rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.image-preview-container img { max-width: 150px; max-height: 150px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); margin-top: 1rem; }
+.submit-container { margin-top: 2rem; display: flex; justify-content: flex-end; }
+#submit-button { font-size: 1rem; font-weight: 600; color: #fff; background-image: linear-gradient(to right, var(--accent-primary), color-mix(in srgb, var(--accent-primary) 80%, #9333ea)); padding: 0.8rem 2rem; border: none; border-radius: var(--border-radius-sm); cursor: pointer; transition: all var(--transition-speed) ease; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 10px; }
+#submit-button:hover:not(:disabled) { box-shadow: 0 10px 20px -5px color-mix(in srgb, var(--accent-primary) 30%, transparent); transform: translateY(-2px); }
+#submit-button:disabled { cursor: not-allowed; opacity: 0.7; }
+.spinner { width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; display: none; }
+#submit-button.loading .spinner { display: block; }
+#submit-button.loading .button-text { display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-        <!-- ===== APLICAÇÃO PRINCIPAL (VIEW DO USUÁRIO) ===== -->
-        <div id="app-view" class="view" style="display: none;">
-            <div id="app-container">
-                <header>
-                    <div class="logo-container"><img src="https://i.postimg.cc/KjZ9whqj/sunshield-logo.webp" alt="SunShield Logo" class="app-logo"></div>
-                    <div class="header-controls">
-                        <button id="admin-panel-button" class="admin-button" style="display: none;">Painel Admin</button>
-                        <div class="theme-switcher"><div class="toggle-switch"><input type="checkbox" id="theme-toggle"><label for="theme-toggle" class="slider"></label></div></div>
-                        <button id="logout-button" class="logout-button">Sair</button>
-                    </div>
-                </header>
-                <main>
-                    <section class="hero"><h1 id="welcome-message">Olá!</h1><p>Preencha o formulário abaixo para registrar seu atestado médico.</p></section>
-                    <form id="leave-request-form" novalidate>
-                        <div class="form-grid">
-                            <div class="form-group"><label for="registrationId">RE (Matrícula)</label><input type="text" id="registrationId" readonly></div>
-                            <div class="form-group"><label for="email">Email para Devolutiva</label><input type="email" id="email" readonly></div>
-                            <div class="form-group"><label for="phone">Telefone do Colaborador</label><input type="tel" id="phone" readonly></div>
-                            <div class="form-group"><label for="startDate">Data Inicial do Afastamento</label><input type="text" id="startDate" required placeholder="Selecione a data..."><small class="error-message">Campo obrigatório.</small></div>
-                            <div class="form-group"><label for="daysOff">Quantidade de Dias Afastados</label><input type="number" id="daysOff" min="1" placeholder="Ex: 1" required><small class="error-message">Deve ser no mínimo 1 dia.</small></div>
-                            <div class="form-group"><label for="branch">Filial</label><select id="branch" name="branch" required><option value="" disabled selected>Selecione sua filial</option><option value="MG/Itajubá">MG/Itajubá</option><option value="SP/São Paulo">SP/São Paulo</option><option value="CE/Fortaleza">CE/Fortaleza</option><option value="PE/Santa Cruz do Capibaribe">PE/Santa Cruz do Capibaribe</option><option value="SC/Itajaí">SC/Itajaí</option></select><small class="error-message">Campo obrigatório.</small></div>
-                            <div class="form-group"><label for="crm">Nº CRM do Médico</label><input type="text" id="crm" name="crm" placeholder="Ex: 94564" required><small class="error-message">Campo obrigatório.</small></div>
-                            <div class="form-group form-group-full"><label for="observations">Observações (CID)</label><textarea id="observations" name="observations" rows="3" placeholder="Ex: CID T784"></textarea></div>
-                            <div class="form-group form-group-full"><label for="medicalProof">Anexar Atestado Médico</label><div class="file-upload-wrapper"><input type="file" id="medicalProof" name="medicalProof" accept="image/png, image/jpeg" required hidden><button type="button" class="file-upload-button">Escolher Arquivo</button><span class="file-name">Nenhum arquivo selecionado</span></div><div id="image-preview" class="image-preview-container"></div><small class="error-message">É obrigatório anexar o atestado.</small></div>
-                            <div class="form-group form-group-full"><label for="signature-pad">Assinatura Digital (Obrigatória)</label><div class="signature-wrapper"><canvas id="signature-pad"></canvas><button type="button" id="clear-signature-button" class="clear-button">Limpar</button></div><small class="error-message" id="signature-error">A assinatura é obrigatória.</small></div>
-                        </div>
-                        <div class="submit-container"><button type="submit" id="submit-button"><span class="button-text">Enviar Solicitação</span><div class="spinner"></div></button></div>
-                    </form>
-                </main>
-                <footer>
-                    <p>&copy; <span id="current-year"></span> Colaborador | SunShield. Todos os direitos reservados.</p>
-                    <p class="signature">
-                        Desenvolvido por <a href="https://www.linkedin.com/in/jordan-luiz-3ab157363?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank"><strong>@jordanlvs</strong> <i class="fa-solid fa-circle-check verified-badge"></i></a> (Proprietário da <a href="https://www.instagram.com/weblv.dev/" target="_blank"><strong>WebLv</strong></a>)
-                    </p>
-                </footer>
-            </div>
-        </div>
+/* --- Estilos do Painel Admin --- */
+.admin-card h2 { margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); }
+.user-list-item, .submission-list-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background-color var(--transition-speed) ease; }
+.user-list-item:hover, .submission-list-item:hover { background-color: var(--input-bg); }
+.user-list-item:last-child, .submission-list-item:last-child { border-bottom: none; }
+.user-info p, .submission-info p { margin: 0; }
+.user-info .user-name, .submission-info .submission-id { font-weight: 600; }
+.user-info .user-email, .submission-info .submission-date { font-size: 0.9rem; color: var(--text-secondary); }
+.list-item-arrow { color: var(--text-secondary); }
 
-        <!-- ===== PAINEL ADMINISTRATIVO ===== -->
-        <div id="admin-view" class="view" style="display: none;">
-            <div id="admin-container">
-                <header>
-                    <div class="logo-container"><img src="https://i.postimg.cc/KjZ9whqj/sunshield-logo.webp" alt="SunShield Logo" class="app-logo"></div>
-                    <div class="header-controls">
-                        <button id="user-view-button" class="admin-button">Visão do Usuário</button>
-                        <div class="theme-switcher"><div class="toggle-switch"><input type="checkbox" id="admin-theme-toggle"><label for="admin-theme-toggle" class="slider"></label></div></div>
-                        <button id="admin-logout-button" class="logout-button">Sair</button>
-                    </div>
-                </header>
-                <main>
-                    <section class="hero"><h1>Painel Administrativo</h1><p>Visualize as solicitações de afastamento dos vigilantes.</p></section>
-                    <div id="user-list-container" class="admin-card">
-                        <h2>Lista de Vigilantes</h2>
-                        <div id="user-list"></div>
-                    </div>
-                </main>
-                <footer>
-                    <p>&copy; <span id="current-year-admin"></span> Administrador | SunShield. Todos os direitos reservados.</p>
-                    <p class="signature">
-                        Desenvolvido por <a href="https://www.linkedin.com/in/jordan-luiz-3ab157363?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank"><strong>@jordanlvs</strong> <i class="fa-solid fa-circle-check verified-badge"></i></a> (Proprietário da <a href="https://www.instagram.com/weblv.dev/" target="_blank"><strong>WebLv</strong></a>)
-                    </p>
-                </footer>
-            </div>
-        </div>
+/* --- Campo de Assinatura --- */
+.signature-wrapper { position: relative; width: 100%; max-width: 500px; }
+#signature-pad { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); cursor: crosshair; touch-action: none; width: 100%; height: auto; aspect-ratio: 2 / 1; }
+.clear-button { position: absolute; top: 10px; right: 10px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 0.3rem 0.8rem; border-radius: var(--border-radius-sm); cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all var(--transition-speed) ease; }
+.clear-button:hover { background: var(--border-color); color: var(--text-primary); }
 
-        <!-- ===== MODAIS ===== -->
-        <div id="success-modal" class="modal-overlay" aria-hidden="true"><div class="modal-content" role="dialog" aria-labelledby="modal-title"><div class="modal-icon">✓</div><h2 id="modal-title" class="modal-title">Solicitação Enviada!</h2><p class="modal-body">Sua solicitação (REQ#<span id="req-id"></span>) foi encaminhada.</p><button class="modal-close-button">Fechar</button></div></div>
-        <div id="submissions-modal" class="modal-overlay" aria-hidden="true"><div class="modal-content" role="dialog"><h2 id="submissions-modal-title">Atestados Enviados</h2><div id="submissions-list"></div><button class="modal-close-button">Fechar</button></div></div>
-        <div id="details-modal" class="modal-overlay" aria-hidden="true"><div class="modal-content modal-lg" role="dialog"><h2 id="details-modal-title">Detalhes da Solicitação</h2><div id="details-content"></div><button class="modal-close-button">Fechar</button></div></div>
-    </div>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
-    <!-- Flatpickr (Seletor de Datas) JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+/* --- Modal & Rodapé --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; z-index: 1000; }
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal-content { background: var(--bg-secondary); padding: 2.5rem; border-radius: var(--border-radius-md); width: 90%; max-width: 500px; text-align: center; transform: scale(0.9); transition: transform 0.4s ease; max-height: 90vh; overflow-y: auto; }
+.modal-overlay.active .modal-content { transform: scale(1); }
+.modal-lg { max-width: 800px; }
+.modal-content h2 { text-align: left; margin-bottom: 1.5rem; }
+.modal-icon { width: 70px; height: 70px; border-radius: 50%; background: var(--success-color); color: #fff; font-size: 2.5rem; display: grid; place-items: center; margin: 0 auto 1.5rem; line-height: 0; }
+.modal-title { font-size: 1.75rem; margin-bottom: 0.5rem; }
+.modal-body { color: var(--text-secondary); margin-bottom: 2rem; }
+.modal-close-button { width: 100%; padding: 0.75rem; background-color: var(--accent-primary); color: white; border: none; border-radius: var(--border-radius-sm); font-size: 1rem; font-weight: 500; cursor: pointer; transition: background-color var(--transition-speed) ease; margin-top: 1.5rem; }
+.modal-close-button:hover { background-color: var(--accent-primary-hover); }
+#details-content { text-align: left; }
+#details-content h3 { font-size: 1rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 1.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+#details-content p { margin-bottom: 0.5rem; }
+#details-content p strong { color: var(--text-primary); font-weight: 500; margin-left: 8px; }
+#details-content img { max-width: 100%; border-radius: var(--border-radius-sm); margin-top: 0.5rem; }
+footer { text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color); font-size: 0.9rem; color: var(--text-secondary); }
 
-    <!-- Script principal da aplicação -->
-    <script src="script.js"></script>
-</body>
-</html>
+/* --- Estilos da Assinatura no Rodapé --- */
+footer .signature {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+footer .signature a {
+    color: var(--text-secondary); /* Herda a cor do texto do parágrafo pai */
+    text-decoration: none; /* Remove o sublinhado */
+    font-weight: 600; /* Mantém o negrito que já estava no strong */
+    transition: color var(--transition-speed) ease;
+}
+footer .signature a:hover {
+    color: var(--text-primary); /* Escurece um pouco no hover */
+    text-decoration: underline; /* Adiciona sublinhado apenas no hover */
+}
+.verified-badge {
+    color: var(--accent-primary); /* Usa a cor de destaque principal */
+    font-size: 0.75rem;
+    vertical-align: middle;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 920px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px) { #app-container, #admin-container, .auth-container { padding: 1rem; } .form-grid { grid-template-columns: 1fr; gap: 1.25rem; } #leave-request-form, .admin-card { padding: 1.5rem; } .hero h1 { font-size: 1.8rem; } .hero p { font-size: 1rem; } .header-controls { gap: 0.5rem; } .file-upload-wrapper { flex-direction: column; align-items: flex-start; gap: 0.5rem; } .admin-button { font-size: 0.8rem; padding: 0.4rem 0.8rem; } .logout-button { font-size: 0.8rem; padding: 0.4rem 0.8rem; } }
+
+/* --- Estilos para o Seletor de Datas (Flatpickr) --- */
+.flatpickr-calendar {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 10px 25px -5px var(--shadow-color);
+    width: auto;
+    font-family: var(--font-family);
+}
+.flatpickr-months .flatpickr-month {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    fill: var(--text-primary);
+    font-weight: 600;
+}
+.flatpickr-months .flatpickr-prev-month svg, 
+.flatpickr-months .flatpickr-next-month svg {
+    fill: var(--text-secondary);
+    transition: fill var(--transition-speed) ease;
+}
+.flatpickr-months .flatpickr-prev-month:hover svg, 
+.flatpickr-months .flatpickr-next-month:hover svg {
+    fill: var(--accent-primary);
+}
+.flatpickr-weekdays {
+    background: var(--bg-primary);
+}
+span.flatpickr-weekday {
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: capitalize;
+}
+.flatpickr-day {
+    color: var(--text-primary);
+    border: 1px solid transparent;
+    transition: all var(--transition-speed) ease;
+}
+.flatpickr-day:hover, .flatpickr-day:focus {
+    background: var(--input-bg);
+    border-color: var(--input-bg);
+}
+.flatpickr-day.today {
+    border-color: var(--accent-primary);
+}
+.flatpickr-day.today:hover {
+    background: var(--accent-primary);
+    color: #fff;
+}
+.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+.flatpickr-day.disabled, .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay {
+    color: color-mix(in srgb, var(--text-secondary) 50%, transparent);
+}
+.numInputWrapper .numInput {
+    background: transparent;
+    color: inherit;
+    border: none;
+}
+.numInputWrapper span {
+    border-left-color: var(--border-color);
+}
+.numInputWrapper span:hover {
+    background: var(--input-bg);
+}
