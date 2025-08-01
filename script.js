@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- COLE AQUI A CONFIGURAÇÃO DO SEU FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyBCQRLCLMPAupDP7vdUJ_pX_hUJeCAKUFc",
         authDomain: "sunatestado.firebaseapp.com",
@@ -24,9 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ELEMENTOS GLOBAIS DO DOM ---
     const views = { login: document.getElementById('login-view'), register: document.getElementById('register-view'), app: document.getElementById('app-view'), admin: document.getElementById('admin-view') };
-    let currentUserData = null; // Armazena os dados do usuário logado (do Firestore)
+    let currentUserData = null;
 
-    // --- FUNÇÃO DE NAVEGAÇÃO (CORREÇÃO) ---
+    // --- FUNÇÃO DE NAVEGAÇÃO ---
     function navigateTo(viewName) {
         Object.values(views).forEach(view => {
             if(view) view.style.display = 'none'
@@ -51,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentUserData = { uid: user.uid, ...userDoc.data() };
                 initializeApp();
             } else {
-                // Se o usuário existe no Auth mas não no Firestore, desloga para evitar erros.
                 auth.signOut();
             }
         } else {
@@ -132,6 +130,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('registrationId').value = currentUserData.re;
         document.getElementById('email').value = currentUserData.email;
         document.getElementById('phone').value = currentUserData.phone;
+        
+        // **INICIALIZAÇÃO DO SELETOR DE DATAS CORRIGIDO**
+        flatpickr("#startDate", {
+            locale: "pt",
+            dateFormat: "Y-m-d", // Formato que o sistema entende
+            altInput: true,
+            altFormat: "j \\de F, Y", // Formato que o usuário vê (com escape)
+        });
+
         navigateTo('app');
         setupSignaturePad();
     }
@@ -228,7 +235,12 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         };
     }
-    document.getElementById('medicalProof').addEventListener('change', (e) => {
+    
+    // **CORREÇÃO DO BOTÃO DE UPLOAD**
+    const fileInput = document.getElementById('medicalProof');
+    document.querySelector('.file-upload-button').addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith('image/')) {
             document.querySelector('.file-name').textContent = file.name;
@@ -244,7 +256,8 @@ document.addEventListener('DOMContentLoaded', () => {
         signaturePad = document.getElementById('signature-pad');
         if (!signaturePad) return;
         ctx = signaturePad.getContext('2d');
-        const resizeCanvas = () => { const ratio = Math.max(window.devicePixelRatio || 1, 1); signaturePad.width = signaturePad.offsetWidth * ratio; signaturePad.height = signaturePad.offsetHeight * ratio; ctx.scale(ratio, ratio); };
+        const setWhiteBackground = () => { const currentFill = ctx.fillStyle; ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, signaturePad.width, signaturePad.height); ctx.fillStyle = currentFill; };
+        const resizeCanvas = () => { const ratio = Math.max(window.devicePixelRatio || 1, 1); signaturePad.width = signaturePad.offsetWidth * ratio; signaturePad.height = signaturePad.offsetHeight * ratio; ctx.scale(ratio, ratio); setWhiteBackground(); };
         window.addEventListener('resize', resizeCanvas); resizeCanvas();
         ctx.strokeStyle = '#000000'; ctx.lineWidth = 2;
         let isDrawing = false;
@@ -255,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ['mousedown', 'touchstart'].forEach(event => signaturePad.addEventListener(event, startDrawing));
         ['mousemove', 'touchmove'].forEach(event => signaturePad.addEventListener(event, draw));
         ['mouseup', 'mouseout', 'touchend'].forEach(event => signaturePad.addEventListener(event, stopDrawing));
-        document.getElementById('clear-signature-button').addEventListener('click', () => { ctx.clearRect(0, 0, signaturePad.width, signaturePad.height); hasSigned = false; });
+        document.getElementById('clear-signature-button').addEventListener('click', () => { ctx.clearRect(0, 0, signaturePad.width, signaturePad.height); setWhiteBackground(); hasSigned = false; });
     }
 
     async function uploadImageToHost(base64Image) {
@@ -272,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     leaveRequestForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        let isFormValid = true; // Validação simplificada, ajuste se necessário
+        let isFormValid = true;
         if (!hasSigned) { isFormValid = false; document.getElementById('signature-error').style.display = 'block'; } else { document.getElementById('signature-error').style.display = 'none'; }
         
         if (isFormValid) {
@@ -324,7 +337,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.file-name').textContent = 'Nenhum arquivo selecionado';
         document.getElementById('image-preview').innerHTML = '';
         medicalCertificateDataUrl = '';
-        if (ctx) ctx.clearRect(0, 0, signaturePad.width, signaturePad.height);
+        if (ctx) {
+            ctx.clearRect(0, 0, signaturePad.width, signaturePad.height);
+            const currentFill = ctx.fillStyle;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, signaturePad.width, signaturePad.height);
+            ctx.fillStyle = currentFill;
+        }
         hasSigned = false;
         initializeApp();
     }
